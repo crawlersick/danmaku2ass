@@ -1,0 +1,17 @@
+cid=`curl --compressed $1 | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
+curl --compressed "http://comment.bilibili.com/"$cid".xml" > $cid.xml
+
+
+
+vediourl=`curl "http://interface.bilibili.com/playurl?cid=$cid&sign=f" | perl -pi -e 's/\r\n//g'  |grep -oP "(?<=<backup_url>)(?s).*(?=</backup_url>)" | grep -oP "(?<=<url><\!\[CDATA\[).*?(?=.flv\]\]></url>)"`
+
+
+assname=`echo $vediourl | awk -F "/" '{print $NF}'`.ass
+
+vediourl=$vediourl.flv
+
+echo $assname
+./danmaku2ass/danmaku2ass.py -o $assname -s 1920x1080  -fn "MS PGothic" -fs 48 -a 0.8 -dm 10 -ds 5 $cid.xml
+
+echo $vediourl
+wget $vediourl
