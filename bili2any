@@ -1,17 +1,29 @@
 cid=`curl --compressed $1 | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
-curl --compressed "http://comment.bilibili.com/"$cid".xml" > $cid.xml
+curl --compressed "http://comment.bilibili.com/"$cid".xml" > /tmp/$cid.xml
 
 
 
-vediourl=`curl "http://interface.bilibili.com/playurl?cid=$cid&sign=f" | perl -pi -e 's/\r\n//g'  |grep -oP "(?<=<backup_url>)(?s).*(?=</backup_url>)" | grep -oP "(?<=<url><\!\[CDATA\[).*?(?=.flv\]\]></url>)"`
+vediourl=`curl "http://interface.bilibili.com/playurl?cid=$cid&sign=f" -H 'Host: interface.bilibili.com' -H 'Referer: http://static.hdslb.com/play.swf' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0' | perl -pi -e 's/\r\n//g'  |grep -oP "(?<=<backup_url>)(?s).*(?=</backup_url>)" | grep -oP "(?<=<url><\!\[CDATA\[).*?(?=\]\]></url>)"`
+
+for a in $vediourl
+do
+vediourl=$a
+break
+done
 
 
-assname=`echo $vediourl | awk -F "/" '{print $NF}'`.ass
+if [ -z "$vediourl" ] 
+then
+echo "error page got!"
+exit 1
+fi
 
-vediourl=$vediourl.flv
+#assname=`echo $1 | awk -F "/" '{print $NF}'`.ass
+assname=$cid.ass
 
 echo $assname
-./danmaku2ass/danmaku2ass.py -o $assname -s 1920x1080  -fn "MS PGothic" -fs 48 -a 0.8 -dm 10 -ds 5 $cid.xml
+./danmaku2ass/danmaku2ass.py -o /tmp/$assname -s 1920x1080 -fs 48 -a 0.8 -dm 13 -ds 5 /tmp/$cid.xml
 
 echo $vediourl
-wget $vediourl
+#wget $vediourl
+vlc --sub-file /tmp/$assname $vediourl
