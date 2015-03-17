@@ -41,7 +41,7 @@ fi
 assname=$cid.ass
 
 echo $assname
-~/code/tools/danmaku2ass/danmaku2ass.py -o /tmp/$assname -s 1920x1080 -fs 48 -a 0.8 -dm 13 -ds 5 /tmp/$cid.xml
+./danmaku2ass.py -o /tmp/$assname -s 1920x1080 -fs 48 -a 0.8 -dm 13 -ds 5 /tmp/$cid.xml
 
 echo $vediourl
 
