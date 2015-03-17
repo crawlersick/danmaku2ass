@@ -1,8 +1,15 @@
-cid=`curl --compressed $1 | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
+biliurl=$1
+echo "$biliurl" | grep -Pq 'av[0-9]+$'
+if [ "$?" == "0" ]
+then 
+biliurl=$biliurl"/"
+fi
+
+cid=`curl --compressed $biliurl | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
 
 if [ -z "$cid" ] 
 then
-cid=`curl --compressed $1 | grep -oP "(?<=cid=)[0-9]+(?=&)"`
+cid=`curl --compressed $biliurl | grep -oP "(?<=cid=)[0-9]+(?=&)"`
 fi
 
 if [ -z "$cid" ] 
@@ -30,11 +37,11 @@ echo "error page got!"
 exit 1
 fi
 
-#assname=`echo $1 | awk -F "/" '{print $NF}'`.ass
+#assname=`echo $biliurl | awk -F "/" '{print $NF}'`.ass
 assname=$cid.ass
 
 echo $assname
-./danmaku2ass/danmaku2ass.py -o /tmp/$assname -s 1920x1080 -fs 48 -a 0.8 -dm 13 -ds 5 /tmp/$cid.xml
+~/code/tools/danmaku2ass/danmaku2ass.py -o /tmp/$assname -s 1920x1080 -fs 48 -a 0.8 -dm 13 -ds 5 /tmp/$cid.xml
 
 echo $vediourl
 
