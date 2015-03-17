@@ -1,3 +1,16 @@
+Bili2any Usage Sample:
+
+```sh
+bili2any http://www.bilibili.com/video/av2119676/
+```
+
+Then Happy BILIBILI!
+
+
+-------------------below is the project I imported for this script-------------------
+
+
+
 Danmaku2ASS
 ===========
 
