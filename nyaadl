@@ -1,0 +1,28 @@
+#!/bin/bash
+set -x
+proxyurl=127.0.0.1:8087
+nyaat=$1
+tid=`echo $nyaat | grep -oP '[0-9]+$'`
+if [ -z "$tid" ] 
+then
+	echo error url input no tid found
+	exit 1
+fi
+tfile=/tmp/$tid".torrent" 
+curl -x $proxyurl -o $tfile $nyaat 
+if [ $? = 0 ]
+then
+	echo success exec curl
+
+	if [ -f $tfile ]
+	then
+		echo torrent $tfile downloaded, start aria now...
+		aria2c -c -d ~/Downloads --enable-dht=true --enable-dht6=true --enable-peer-exchange=true --follow-torrent=true --seed-time=0 --disk-cache=1024M --enable-color=true $tfile
+	else
+		echo torrent $tfile not found. erorr
+		exit 1
+	fi	
+else
+	echo curl exec failed pls check!
+	exit 1	
+fi

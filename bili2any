@@ -1,3 +1,5 @@
+#!/bin/bash
+echo "cookie exported:"$cookie
 biliurl=$1
 echo "$biliurl" | grep -Pq 'av[0-9]+$'
 if [ "$?" == "0" ]
@@ -5,24 +7,25 @@ then
 biliurl=$biliurl"/"
 fi
 
-cid=`curl --compressed $biliurl | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
+cid=`curl -m 12 --compressed $biliurl -H "$cookie" | grep -oP "(?<=EmbedPlayer\(\'player\', \"http://static.hdslb.com/play.swf\", \"cid=)[0-9]+(?=&)"`
 
 if [ -z "$cid" ] 
 then
-cid=`curl --compressed $biliurl | grep -oP "(?<=cid=)[0-9]+(?=&)"`
+cid=`curl -m 12 --compressed $biliurl -H "$cookie" | grep -oP "(?<=cid=)[0-9]+(?=&)"`
 fi
 
 if [ -z "$cid" ] 
 then
 echo "error cid got!"
+kdialog --sorry "error cid got!"
 exit 1
 fi
 
-curl --compressed "http://comment.bilibili.com/"$cid".xml" > /tmp/$cid.xml
+curl -m 12 --compressed "http://comment.bilibili.com/"$cid".xml" -H "$cookie" > /tmp/$cid.xml
 
 
 
-vediourl=`curl "http://interface.bilibili.com/playurl?cid=$cid&sign=f" -H 'Host: interface.bilibili.com' -H 'Referer: http://static.hdslb.com/play.swf' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0' | perl -pi -e 's/\r\n//g'  |grep -oP "(?<=<backup_url>)(?s).*(?=</backup_url>)" | grep -oP "(?<=<url><\!\[CDATA\[).*?(?=\]\]></url>)"`
+vediourl=`curl -m 12 "http://interface.bilibili.com/playurl?cid=$cid&sign=f" -H "$cookie" -H 'Host: interface.bilibili.com' -H 'Referer: http://static.hdslb.com/play.swf' -H 'User-Agent: Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:36.0) Gecko/20100101 Firefox/36.0' | perl -pi -e 's/\r\n//g'  |grep -oP "(?<=<backup_url>)(?s).*(?=</backup_url>)" | grep -oP "(?<=<url><\!\[CDATA\[).*?(?=\]\]></url>)"`
 
 for a in $vediourl
 do
@@ -34,6 +37,7 @@ done
 if [ -z "$vediourl" ] 
 then
 echo "error page got!"
+kdialog --sorry  "error page got!"
 exit 1
 fi
 
@@ -47,6 +51,6 @@ echo $vediourl
 
 vlc --sub-file /tmp/$assname "$vediourl"
 
-#wget -O /tmp/$cid.vedio $vediourl &
+#wget -O /tmp/$cid.vedio $vediourl
 #sleep 5
 #vlc --sub-file /tmp/$assname /tmp/$cid.vedio
