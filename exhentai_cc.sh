@@ -53,15 +53,17 @@ else
     while [[ $getfilesize == "0" ]]
     do
 
-        curl --retry 3 -m 120 -o "$fullfilepath" $imgurl
-        status=$?
-        getfilesize=`ls -tral "$fullfilepath" |awk '{print $5}'`
-        i=`expr $i + 1`
         if [[ $i == "3" ]]
         then
         status="999"
         break
         fi
+
+        curl --retry 3 -m 120 -o "$fullfilepath" $imgurl
+        status=$?
+        getfilesize=`ls -tral "$fullfilepath" |awk '{print $5}'`
+        i=`expr $i + 1`
+
     done
     
 fi
