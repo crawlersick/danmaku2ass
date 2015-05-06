@@ -49,8 +49,12 @@ echo $assname
 
 echo $vediourl
 
+set -x
+if [ -z "$2" ] 
+then
 vlc --sub-file /tmp/$assname "$vediourl"
-
-#wget -O /tmp/$cid.vedio $vediourl
+else
+wget -O /tmp/$cid.vedio $vediourl
+fi
 #sleep 5
 #vlc --sub-file /tmp/$assname /tmp/$cid.vedio
